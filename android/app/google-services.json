@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "389321297001",
+    "firebase_url": "https://drcc-coffee-train.firebaseio.com",
+    "project_id": "drcc-coffee-train",
+    "storage_bucket": "drcc-coffee-train.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389321297001:android:c20fa72f632d9f959fa6f8",
+        "android_client_info": {
+          "package_name": "com.groovinchip.drcc_coffee_train"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "389321297001-bj22799jjf22odarr1gofg33ttodr8om.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwDZjS7Jq34hCMv9Y790EaGwcrcasOfOk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "389321297001-bj22799jjf22odarr1gofg33ttodr8om.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,7 +1,7 @@
 name: drcc_coffee_train
 description: A new Flutter application.
 
-version: 0.5.0
+version: 0.6.0
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -23,6 +23,7 @@ dependencies:
   fb_firestore: ^0.0.1+3
   badges: ^1.1.0
   timeago: ^2.0.22
+  snapfeed: ^0.1.0+1
 
   #DO NOT UPDATE: this version is required for fb_auth
   flutter_bloc: ^2.0.1

@@ -6,6 +6,9 @@ import 'package:fb_firestore/fb_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:rounded_modal/rounded_modal.dart';
+import 'package:snapfeed/snapfeed.dart';
+import 'package:flutter/foundation.dart';
 
 class UpcomingTrains extends StatefulWidget {
   @override
@@ -20,7 +23,7 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
     // ignore: close_sinks
     final _auth = BlocProvider.of<AuthBloc>(context);
     final size = MediaQuery.of(context).size;
-    if (size.width > 420) {
+    if (size.width >= 500) {
       isMobileLayout = false;
     } else {
       isMobileLayout = true;
@@ -30,35 +33,74 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(MdiIcons.accountCircleOutline),
-            onPressed: () => showDialog(
+            onPressed: () => isMobileLayout == true ? showRoundedModalBottomSheet(
+              color: Theme.of(context).canvasColor,
               context: context,
-              builder: (_) => AlertDialog(
-                title: Text('Account'),
-                content: ListTile(
-                  title: Text(AuthBloc.currentUser(context).displayName),
-                  subtitle: Text(AuthBloc.currentUser(context).email),
-                ),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text(
-                      'Log Out',
-                      style: TextStyle(
-                        color: Theme.of(context).accentColor,
-                      ),
-                    ),
-                    onPressed: () {
+              builder: (context) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    leading: Icon(MdiIcons.accountCircleOutline),
+                    title: Text(AuthBloc.currentUser(context).displayName),
+                    subtitle: Text(AuthBloc.currentUser(context).email),
+                  ),
+                  ListTile(
+                    title: Text('Give Feedback'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Snapfeed.of(context).startFeedback();
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Log out'),
+                    onTap: () {
                       _auth.add(LogoutEvent(AuthBloc.currentUser(context)));
                       Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
                     },
                   ),
-                  FlatButton(
-                    child: Text(
-                      'Dismiss',
-                      style: TextStyle(
-                        color: Theme.of(context).accentColor,
+                ],
+              ),
+            ) : showDialog(
+              context: context,
+              builder: (_) => SimpleDialog(
+                title: Text('Account'),
+                children: <Widget>[
+                  ListTile(
+                    title: Text(AuthBloc.currentUser(context).displayName),
+                    subtitle: Text(AuthBloc.currentUser(context).email),
+                  ),
+                  ListTile(
+                    title: Text('Give Feedback'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Snapfeed.of(context).startFeedback();
+                    },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      FlatButton(
+                        child: Text(
+                          'Log Out',
+                          style: TextStyle(
+                            color: Theme.of(context).accentColor,
+                          ),
+                        ),
+                        onPressed: () {
+                          _auth.add(LogoutEvent(AuthBloc.currentUser(context)));
+                          Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+                        },
                       ),
-                    ),
-                    onPressed: () => Navigator.pop(context),
+                      FlatButton(
+                        child: Text(
+                          'Dismiss',
+                          style: TextStyle(
+                            color: Theme.of(context).accentColor,
+                          ),
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -77,7 +119,6 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
         body: FutureBuilder<List<FbDocumentSnapshot>>(
           future: FbFirestore.getDocs('Trains'),
           builder: (context, snapshot) {
-            print(snapshot);
             if (!snapshot.hasData && snapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: CircularProgressIndicator(),
@@ -88,11 +129,15 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
               );
             } else {
               final trains = snapshot.data;
-              if (size.width > 400) {
-                return DesktopWebLayout(trains: trains);
-              } else {
-                return MobileLayout(trains: trains);
-              }
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth >= 1000) {
+                    return DesktopWebLayout(trains: trains,);
+                  } else {
+                    return MobileLayout(trains: trains,);
+                  }
+                },
+              );
             }
           },
         ),
@@ -125,14 +170,6 @@ class MobileLayout extends StatefulWidget {
 }
 
 class _MobileLayoutState extends State<MobileLayout> {
-  var _passengerCount;
-
-  void getPassengerCount(String trainId) async {
-    final passengerList = await FbFirestore.getDocs('Trains/$trainId/Passengers');
-    setState(() {
-      _passengerCount = passengerList.length;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,13 +180,12 @@ class _MobileLayoutState extends State<MobileLayout> {
         itemBuilder: (context, index) {
           final train = widget.trains[index];
           final trainId = train.documentId;
-          getPassengerCount(trainId);
           return TrainCard(
             trainId: trainId,
+            userName: AuthBloc.currentUser(context).displayName,
             submittedBy: train.data['SubmittedBy'],
             destination: train.data['Destination'],
             departureTime: train.data['DepartureTime'],
-            passengerCount: _passengerCount,
             isRecurring: train.data['Recurring'],
           );
         },
@@ -175,71 +211,54 @@ class DesktopWebLayout extends StatefulWidget {
 }
 
 class _DesktopWebLayoutState extends State<DesktopWebLayout> {
-  var _passengerCount;
-
-  void getPassengerCount(String trainId) async {
-    final passengerList = await FbFirestore.getDocs('Trains/$trainId/Passengers');
-    setState(() {
-      _passengerCount = passengerList.length;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    double _aspectRatio;
-    int _crossAxisCount;
-    final double _screenWidth = MediaQuery.of(context).size.width;
-    if (_screenWidth > 400 && _screenWidth < 475) {
-      _crossAxisCount = 1;
-      _aspectRatio = 2.7;
-    } else if (_screenWidth > 475 && _screenWidth <= 600) {
-      _crossAxisCount = 1;
-      _aspectRatio = 3.2;
-    } else if (_screenWidth > 600 && _screenWidth <= 710) {
-      _crossAxisCount = 1;
-      _aspectRatio = 4;
-    } else if (_screenWidth > 710 && _screenWidth <= 800) {
-      _crossAxisCount = 1;
-      _aspectRatio = 5;
-    } else if (_screenWidth > 800 && _screenWidth <= 900) {
-      _crossAxisCount = 1;
-      _aspectRatio = 5.5;
-    } else if (_screenWidth > 900 && _screenWidth <= 1100) {
-      _crossAxisCount = 2;
-      _aspectRatio = 3;
-    } else if (_screenWidth > 1100 && _screenWidth <= 1200) {
-      _crossAxisCount = 2;
-      _aspectRatio = 3.5;
-    } else if (_screenWidth > 1200 && _screenWidth <= 1350) {
-      _crossAxisCount = 2;
-      _aspectRatio = 4;
-    } else if (_screenWidth > 1350 && _screenWidth <= 1919) {
-      _crossAxisCount = 3;
-      _aspectRatio = 3;
-    } else if (_screenWidth >= 1920) {
-      _crossAxisCount = 3;
-      _aspectRatio = 4;
-    }
-
     if (widget.trains.length > 0) {
-      return GridView.builder(
-        padding: EdgeInsets.all(16),
-        itemCount: widget.trains.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: _crossAxisCount,
-          childAspectRatio: _aspectRatio,
-        ),
-        itemBuilder: (context, index) {
-          final train = widget.trains[index];
-          final trainId = train.documentId;
-          getPassengerCount(trainId);
-          return TrainCard(
-            trainId: trainId,
-            submittedBy: train.data['SubmittedBy'],
-            destination: train.data['Destination'],
-            departureTime: train.data['DepartureTime'],
-            passengerCount: _passengerCount,
-            isRecurring: train.data['Recurring'],
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          double _childAspectRatio;
+          if (constraints.maxWidth < 1065) {
+            _childAspectRatio = 4.0;
+          } else if (constraints.maxWidth >= 1065 && constraints.maxWidth < 1220) {
+            _childAspectRatio = 4.2;
+          } else if (constraints.maxWidth >= 1220 && constraints.maxWidth < 1300) {
+            _childAspectRatio = 4.5;
+          } else if (constraints.maxWidth >= 1300 && constraints.maxWidth < 1400) {
+            _childAspectRatio = 4.8;
+          } else if (constraints.maxWidth >= 1400 && constraints.maxWidth < 1621) {
+            _childAspectRatio = 5.0;
+          } else if (constraints.maxWidth >= 1980 && constraints.maxWidth < 2431) {
+            _childAspectRatio = 5.2;
+          } else {
+            _childAspectRatio = 4.0;
+          }
+          return CustomScrollView(
+            slivers: <Widget>[
+              SliverGrid(
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 800.0,
+                  mainAxisSpacing: 10.0,
+                  crossAxisSpacing: 10.0,
+                  childAspectRatio: _childAspectRatio,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                    final train = widget.trains[index];
+                    final trainId = train.documentId;
+                    return TrainCard(
+                      trainId: trainId,
+                      userName: AuthBloc.currentUser(context).displayName,
+                      submittedBy: train.data['SubmittedBy'],
+                      destination: train.data['Destination'],
+                      departureTime: train.data['DepartureTime'],
+                      isRecurring: train.data['Recurring'],
+                    );
+                  },
+                  childCount: widget.trains.length,
+                ),
+              ),
+            ],
           );
         },
       );

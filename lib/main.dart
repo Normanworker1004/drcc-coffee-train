@@ -24,14 +24,14 @@ class DrccRailway extends StatefulWidget {
 class _DrccRailwayState extends State<DrccRailway> {
   static AppData appData = AppData();
   final _app = FbApp(
-    apiKey: appData.$apiKey,
-    authDomain: appData.$authDomain,
-    databaseURL: appData.$databaseURL,
-    projectId: appData.$projectId,
-    storageBucket: appData.$storageBucket,
-    messagingSenderId: appData.$messagingSenderId,
-    appId: appData.$appId,
-    measurementId: appData.$measurementId
+    apiKey: appData.apiKey,
+    authDomain: appData.authDomain,
+    databaseURL: appData.databaseURL,
+    projectId: appData.projectId,
+    storageBucket: appData.storageBucket,
+    messagingSenderId: appData.messagingSenderId,
+    appId: appData.appId,
+    measurementId: appData.measurementId
   );
 
   AuthBloc _auth;
@@ -66,8 +66,8 @@ class _DrccRailwayState extends State<DrccRailway> {
         BlocProvider<AuthBloc>(builder: (_) => _auth),
       ],
       child: Snapfeed(
-        projectId: appData.$snapfeedId,
-        secret: appData.$snapfeedSecret,
+        projectId: appData.snapfeedId,
+        secret: appData.snapfeedSecret,
         child: MaterialApp(
           title: 'DRCC Railway',
           theme: ThemeData(

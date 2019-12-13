@@ -43,10 +43,20 @@ class _NewTrainState extends State<NewTrain> {
                       try {
                         if (departureTime != null && destination.isNotEmpty) {
                           final formattedDepartureTime = formatTimeOfDay(departureTime);
+                          DateTime _timestamp = DateTime.now();
+                          DateTime _fullDepartureTime = DateTime(
+                            _timestamp.year,
+                            _timestamp.month,
+                            _timestamp.day,
+                            departureTime.hour,
+                            departureTime.minute,
+                          );
                           FbFirestore.addDoc('Trains', {
+                            'Timestamp': _timestamp.toString(),
                             'SubmittedBy': AuthBloc.currentUser(context).displayName,
                             'Destination': destination,
                             'DepartureTime': formattedDepartureTime,
+                            'FullDepartureTime': _fullDepartureTime.toString(),
                             'Recurring': isRecurring,
                           });
                           Navigator.pop(context);
@@ -66,7 +76,7 @@ class _NewTrainState extends State<NewTrain> {
               if (constraints.maxWidth <= 500) {
                 _padding = const EdgeInsets.all(16);
               } else {
-                _padding = EdgeInsets.only(top: 50,left: 250, right: 250);
+                _padding = EdgeInsets.only(top: 50, left: 250, right: 250);
               }
               return Padding(
                 padding: _padding,
@@ -171,10 +181,20 @@ class _NewTrainState extends State<NewTrain> {
                     try {
                       if (departureTime != null && destination.isNotEmpty) {
                         final formattedDepartureTime = formatTimeOfDay(departureTime);
+                        DateTime _timestamp = DateTime.now();
+                        DateTime _fullDepartureTime = DateTime(
+                          _timestamp.year,
+                          _timestamp.month,
+                          _timestamp.day,
+                          departureTime.hour,
+                          departureTime.minute,
+                        );
                         FbFirestore.addDoc('Trains', {
+                          'Timestamp': _timestamp.toString(),
                           'SubmittedBy': AuthBloc.currentUser(context).displayName,
                           'Destination': destination,
                           'DepartureTime': formattedDepartureTime,
+                          'FullDepartureTime': _fullDepartureTime.toString(),
                           'Recurring': isRecurring,
                         });
                         Navigator.pop(context);

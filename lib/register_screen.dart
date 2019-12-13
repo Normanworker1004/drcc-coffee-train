@@ -32,8 +32,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         body: LayoutBuilder(
           builder: (context, constraints) {
-            if (constraints.maxWidth >= 650) {
-              _formPadding = EdgeInsets.only(left: 375, right: 375);
+            if (constraints.maxWidth >= 768) {
+              _formPadding = EdgeInsets.only(left: 125, right: 125);
             } else {
               _formPadding = EdgeInsets.only(left: 16, right: 16);
             }

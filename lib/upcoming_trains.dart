@@ -260,18 +260,35 @@ class _DesktopWebLayoutState extends State<DesktopWebLayout> {
                   crossAxisSpacing: 10.0,
                   childAspectRatio: _childAspectRatio,
                 ),
-                delegate: SliverChildBuilderDelegate(
-                      (BuildContext context, int index) {
+                delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+                    DateTime _loadTime = DateTime.now();
                     final train = widget.trains[index];
                     final trainId = train.documentId;
-                    return TrainCard(
-                      trainId: trainId,
-                      userName: AuthBloc.currentUser(context).displayName,
-                      submittedBy: train.data['SubmittedBy'],
-                      destination: train.data['Destination'],
-                      departureTime: train.data['DepartureTime'],
-                      isRecurring: train.data['Recurring'],
-                    );
+
+                    /// Begin filtering: if the train's departure time is before
+                    /// the user's load time, delete that train. Otherwise show that train.
+                    DateTime _departureTime = DateTime.parse(train.data['FullDepartureTime']);
+                    if (_departureTime.isBefore(_loadTime)) {
+                      FbFirestore.deleteDoc('Trains/$trainId');
+                      if (widget.trains.length > 0) {
+                        return Container();
+                      } else {
+                        return Center(
+                          child: Text('No Upcoming Trains'),
+                        );
+                      }
+                    } else {
+                      String _submittedBy = train.data['SubmittedBy'];
+                      FbFirestore.editDoc('Trains/${trainId}/Passengers/$_submittedBy', {});
+                      return TrainCard(
+                        trainId: trainId,
+                        userName: AuthBloc.currentUser(context).displayName,
+                        submittedBy: _submittedBy,
+                        destination: train.data['Destination'],
+                        departureTime: train.data['DepartureTime'],
+                        isRecurring: train.data['Recurring'],
+                      );
+                    }
                   },
                   childCount: widget.trains.length,
                 ),

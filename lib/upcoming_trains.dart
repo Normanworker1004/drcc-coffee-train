@@ -32,7 +32,7 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
       builder: (context, state) => Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(MdiIcons.accountCircleOutline),
+            icon: Icon(MdiIcons.menu),
             onPressed: () => isMobileLayout == true ? showRoundedModalBottomSheet(
               color: Theme.of(context).canvasColor,
               context: context,
@@ -45,6 +45,7 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
                     subtitle: Text(AuthBloc.currentUser(context).email),
                   ),
                   ListTile(
+                    leading: Icon(MdiIcons.emailSend),
                     title: Text('Give Feedback'),
                     onTap: () {
                       Navigator.pop(context);
@@ -52,6 +53,7 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
                     },
                   ),
                   ListTile(
+                    leading: Icon(MdiIcons.exitToApp),
                     title: Text('Log out'),
                     onTap: () {
                       _auth.add(LogoutEvent(AuthBloc.currentUser(context)));
@@ -63,13 +65,15 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
             ) : showDialog(
               context: context,
               builder: (_) => SimpleDialog(
-                title: Text('Account'),
+                titlePadding: EdgeInsets.only(top: 24),
+                title: ListTile(
+                  leading: Icon(MdiIcons.accountCircleOutline),
+                  title: Text(AuthBloc.currentUser(context).displayName),
+                  subtitle: Text(AuthBloc.currentUser(context).email),
+                ),
                 children: <Widget>[
                   ListTile(
-                    title: Text(AuthBloc.currentUser(context).displayName),
-                    subtitle: Text(AuthBloc.currentUser(context).email),
-                  ),
-                  ListTile(
+                    leading: Icon(MdiIcons.emailSend),
                     title: Text('Give Feedback'),
                     onTap: () {
                       Navigator.pop(context);

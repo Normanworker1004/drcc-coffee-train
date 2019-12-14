@@ -201,7 +201,7 @@ class _MobileLayoutState extends State<MobileLayout> {
             }
           } else {
             String _submittedBy = train.data['SubmittedBy'];
-            FbFirestore.editDoc('Trains/${trainId}/Passengers/$_submittedBy', {});
+            FbFirestore.editDoc('Trains/$trainId/Passengers/$_submittedBy', {});
             return TrainCard(
               trainId: trainId,
               userName: AuthBloc.currentUser(context).displayName,
@@ -284,7 +284,7 @@ class _DesktopWebLayoutState extends State<DesktopWebLayout> {
                       }
                     } else {
                       String _submittedBy = train.data['SubmittedBy'];
-                      FbFirestore.editDoc('Trains/${trainId}/Passengers/$_submittedBy', {});
+                      FbFirestore.editDoc('Trains/$trainId/Passengers/$_submittedBy', {});
                       return TrainCard(
                         trainId: trainId,
                         userName: AuthBloc.currentUser(context).displayName,

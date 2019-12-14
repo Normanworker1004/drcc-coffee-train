@@ -36,6 +36,7 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
             onPressed: () => isMobileLayout == true ? showRoundedModalBottomSheet(
               color: Theme.of(context).canvasColor,
               context: context,
+              dismissOnTap: false,
               builder: (context) => Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[

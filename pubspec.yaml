@@ -1,7 +1,7 @@
 name: drcc_coffee_train
 description: A new Flutter application.
 
-version: 0.7.1
+version: 0.8.0
 
 environment:
   sdk: ">=2.2.2 <3.0.0"

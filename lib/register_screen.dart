@@ -1,5 +1,6 @@
 import 'package:fb_auth/fb_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -17,6 +18,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String _email, _password, _name;
 
   EdgeInsetsGeometry _formPadding;
+
+  var barBrightness;
 
   @override
   Widget build(BuildContext context) {

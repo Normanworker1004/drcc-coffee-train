@@ -16,6 +16,7 @@ class NewTrain extends StatefulWidget {
 }
 
 class _NewTrainState extends State<NewTrain> {
+  bool isMobileLayout;
   final timeFormat = DateFormat("hh:mm a");
   TimeOfDay departureTime;
   String selection;
@@ -33,10 +34,28 @@ class _NewTrainState extends State<NewTrain> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    if (size.width >= 500) {
+      isMobileLayout = false;
+    } else {
+      isMobileLayout = true;
+    }
+
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) => LayoutBuilder(
         builder: (context, constraints) => Scaffold(
-          appBar: AppBar(title: Text('New Train'), centerTitle: true, actions: [
+          appBar: AppBar(
+            automaticallyImplyLeading: isMobileLayout ? false : true,
+            backgroundColor: isMobileLayout == true ? Theme.of(context).canvasColor : Theme.of(context).primaryColor,
+            elevation:  isMobileLayout == true ? 0 : 4,
+            title: Text(
+              'New Train',
+              style: TextStyle(
+                fontWeight: isMobileLayout == true ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            centerTitle: true,
+            actions: [
             constraints.maxWidth >= 768
                 ? FlatButton.icon(
                     onPressed: () {
@@ -213,9 +232,22 @@ class _NewTrainState extends State<NewTrain> {
                     MdiIcons.contentSave,
                     color: Colors.white,
                   ),
-                  backgroundColor: Theme.of(context).primaryColor,
+                  backgroundColor: Color(0xff0072CE),
                 )
               : Container(),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          bottomNavigationBar: isMobileLayout == true ? BottomAppBar(
+            color: Theme.of(context).primaryColor,
+            child: Row(
+              children: <Widget>[
+                SizedBox(width: 8),
+                IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ) : null,
         ),
       ),
     );

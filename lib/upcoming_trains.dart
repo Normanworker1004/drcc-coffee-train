@@ -28,42 +28,15 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
     } else {
       isMobileLayout = true;
     }
+
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) => Scaffold(
         appBar: AppBar(
-          leading: IconButton(
+          backgroundColor: isMobileLayout == true ? Theme.of(context).canvasColor : Theme.of(context).primaryColor,
+          elevation:  isMobileLayout == true ? 0 : 4,
+          leading: isMobileLayout == false ? IconButton(
             icon: Icon(MdiIcons.menu),
-            onPressed: () => isMobileLayout == true ? showRoundedModalBottomSheet(
-              color: Theme.of(context).canvasColor,
-              context: context,
-              dismissOnTap: false,
-              builder: (context) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  ListTile(
-                    leading: Icon(MdiIcons.accountCircleOutline),
-                    title: Text(AuthBloc.currentUser(context).displayName),
-                    subtitle: Text(AuthBloc.currentUser(context).email),
-                  ),
-                  ListTile(
-                    leading: Icon(MdiIcons.emailSend),
-                    title: Text('Give Feedback'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Snapfeed.of(context).startFeedback();
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(MdiIcons.exitToApp),
-                    title: Text('Log out'),
-                    onTap: () {
-                      _auth.add(LogoutEvent(AuthBloc.currentUser(context)));
-                      Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
-                    },
-                  ),
-                ],
-              ),
-            ) : showDialog(
+            onPressed: () => showDialog(
               context: context,
               builder: (_) => SimpleDialog(
                 titlePadding: EdgeInsets.only(top: 24),
@@ -110,9 +83,14 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
                 ],
               ),
             ),
-          ),
+          ) : null,
           centerTitle: true,
-          title: Text('Upcoming Trains'),
+          title: Text(
+            'Upcoming Trains',
+            style: TextStyle(
+              fontWeight: isMobileLayout == true ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
           actions: <Widget>[
             isMobileLayout == false ? FlatButton.icon(
               onPressed: () => Navigator.of(context).pushNamed('/NewTrain'),
@@ -156,8 +134,56 @@ class _UpcomingTrainsState extends State<UpcomingTrains> {
             MdiIcons.trainVariant,
             color: Colors.white,
           ),
-          backgroundColor: Theme.of(context).primaryColor,
+          backgroundColor: Color(0xff0072CE),
         ) : Container(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: isMobileLayout == true ? BottomAppBar(
+          //color: Theme.of(context).primaryColor,
+          /*shape: AutomaticNotchedShape(
+            RoundedRectangleBorder(),
+            StadiumBorder(side: BorderSide())
+          ),*/
+          color: Theme.of(context).primaryColor,
+          child: Row(
+            children: <Widget>[
+              SizedBox(width: 8),
+              IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () => showRoundedModalBottomSheet(
+                  color: Theme.of(context).canvasColor,
+                  context: context,
+                  dismissOnTap: false,
+                  builder: (context) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      ListTile(
+                        leading: Icon(MdiIcons.accountCircleOutline),
+                        title: Text(AuthBloc.currentUser(context).displayName),
+                        subtitle: Text(AuthBloc.currentUser(context).email),
+                      ),
+                      ListTile(
+                        leading: Icon(MdiIcons.emailSend),
+                        title: Text('Give Feedback'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Snapfeed.of(context).startFeedback();
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(MdiIcons.exitToApp),
+                        title: Text('Log out'),
+                        onTap: () {
+                          _auth.add(LogoutEvent(AuthBloc.currentUser(context)));
+                          Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ) : null,
       ),
     );
   }
